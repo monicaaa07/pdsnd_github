@@ -11,6 +11,12 @@ This Project provides insights on bike-sharing in major U.S cities.
 <p>It reads a csv in a given format and provides time statistics like busiest month in a year, busiest day of the week and most common hour in a day to rent a bike in the selected city.
 <p>In addition Location Stat like most common start and end station ,most common routes; Customer stats like gender and age distribution are also provided
 
+<p>Inputs to be provided for this app to run.    
+1. City name    
+2. Month and day to be filtered by. Select 'all' if filtering not needed
+
+After displaying stats, it also provides the option to view 5 rows of data at a time.
+
 
 ### Files used
 bikeshare.py
