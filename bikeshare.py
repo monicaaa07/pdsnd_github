@@ -92,33 +92,33 @@ def load_data(city, month, day):
         (str) month - name of the month to filter by, or "all" to apply no month filter
         (str) day - name of the day of week to filter by, or "all" to apply no day filter
     Returns:
-        df - Pandas DataFrame containing city data filtered by month and day
+        city_data_dataframe - Pandas DataFrame containing city data filtered by month and day
     """
     try:
         # load data file into a dataframe
-        df = pd.read_csv(CITY_DATA[city])
+        city_data_dataframe = pd.read_csv(CITY_DATA[city])
 
         # convert the Start Time column to datetime
-        df['Start Time'] = pd.to_datetime(df['Start Time'])
+        city_data_dataframe['Start Time'] = pd.to_datetime(city_data_dataframe['Start Time'])
 
         # extract month and day of week from Start Time to create new columns
-        df['month'] = df['Start Time'].dt.month
-        df['day_of_week'] = df['Start Time'].dt.weekday
+        city_data_dataframe['month'] = city_data_dataframe['Start Time'].dt.month
+        city_data_dataframe['day_of_week'] = city_data_dataframe['Start Time'].dt.weekday
 
         # filter by month if applicable
         if month != 'all':
             # use the index of the months list to get the corresponding int
             month = months.index(month)
             # filter by month to create the new dataframe
-            df = df[df['month'] == month]
+            city_data_dataframe = city_data_dataframe[city_data_dataframe['month'] == month]
 
         # filter by day of week if applicable
         if day != 'all':
             day = weekdays.index(day)
             # filter by day of week to create the new dataframe
-            df = df[df['day_of_week'] == day-1]
+            city_data_dataframe = city_data_dataframe[city_data_dataframe['day_of_week'] == day-1]
 
-        return df
+        return city_data_dataframe
 
     except KeyError as e:
         print('Incorrect File Format. Columns "Start Time","month","day_of_week" must be present. '.format(e))
@@ -126,46 +126,46 @@ def load_data(city, month, day):
         print("Raised Error: ",e)
 
 
-def preprocessing(df, city):
+def preprocessing(city_data_dataframe, city):
     """
     Renames columns, change to approporiate datatypes
     Args:
-        df - DataFrame to be pre-processed
+        city_data_dataframe - DataFrame to be pre-processed
     Returns:
-        df - cleaner DataFrame
+        city_data_dataframe - cleaner DataFrame
     """
     try:
-        df.fillna(0,inplace = True)
+        city_data_dataframe.fillna(0,inplace = True)
         #changing column datatypes
-        df['End Time'] = pd.to_datetime(df['End Time'])
+        city_data_dataframe['End Time'] = pd.to_datetime(city_data_dataframe['End Time'])
 
         # washington.csv is missing 'Birth Year' column. Adding a dummy column if input file is washington's
         if city == 'washington':
-            df['Birth Year'] = np.zeros(len(df))
-        df['Birth Year'] = pd.Series(map(lambda x:int(x),df['Birth Year']))
+            city_data_dataframe['Birth Year'] = np.zeros(len(city_data_dataframe))
+        city_data_dataframe['Birth Year'] = pd.Series(map(lambda x:int(x),city_data_dataframe['Birth Year']))
 
         # renaming column names to be more readable
-        df.rename(columns = {'Unnamed: 0':'Trip Id'},inplace = True)
-        return df
+        city_data_dataframe.rename(columns = {'Unnamed: 0':'Trip Id'},inplace = True)
+        return city_data_dataframe
 
     except KeyError as e:
         print('Incorrect File Format. Columns "End Time","Birth Year" must be present. '.format(e))
     except Exception as e:
         print("Raised Error: ",e)
 
-def view_data(df):
+def view_data(city_data_dataframe):
     """
     Allows user to view data five rows at a time. User can exit if done viewing data
     """
     try:
-        print("\nSelected data contains {} rows.".format(len(df)))
+        print("\nSelected data contains {} rows.".format(len(city_data_dataframe)))
         view_option = input("\nWould you like to view first 5 rows of data? Enter yes or no: ").lower()
         view_option = invalid_input_helper(['yes','no'], view_option)
         # sindex is start index and lindex is last index incremented by 5 to display 5 rows to the user
         sindex, lindex = 0, 5
         pp = pprint.PrettyPrinter(compact=True)
         while view_option == 'yes':
-            pp.pprint(df[sindex:lindex].to_dict(orient='records'))
+            pp.pprint(city_data_dataframe[sindex:lindex].to_dict(orient='records'))
             sindex, lindex = lindex, lindex + 5
             view_option = input("\nWould you like to view next 5 rows of data? Enter yes or no: ").lower()
             view_option = invalid_input_helper(['yes','no'], view_option)
@@ -173,7 +173,7 @@ def view_data(df):
     except Exception as e:
         print("Raised Error: ",e)
 
-def time_stats(df):
+def time_stats(city_data_dataframe):
     """Displays statistics on the most frequent times of travel."""
 
     print('\nCalculating The Most Frequent Times of Travel...\n')
@@ -183,15 +183,15 @@ def time_stats(df):
 
     try:
         # display the most common month
-        busiest_month_index = df['month'].mode()[0]
+        busiest_month_index = city_data_dataframe['month'].mode()[0]
         print("Busiest Month was {}".format(months[busiest_month_index].title()))
 
         # display the most common day of week
-        busiest_dow_index = df['day_of_week'].mode()[0]
+        busiest_dow_index = city_data_dataframe['day_of_week'].mode()[0]
         print("Busiest Day of Week was {}".format(weekdays[busiest_dow_index].title()))
 
         # display the most common start hour
-        busiest_start_hour = df['Start Time'].dt.hour.mode()[0]
+        busiest_start_hour = city_data_dataframe['Start Time'].dt.hour.mode()[0]
         print("Busiest Start Hour was {}:00".format(busiest_start_hour))
 
         print("\nThis took %s seconds." % (time.time() - start_time))
@@ -201,7 +201,7 @@ def time_stats(df):
         print("Raised Error: ",e)
 
 
-def station_stats(df):
+def station_stats(city_data_dataframe):
     """Displays statistics on the most popular stations and trip."""
     print('\nCalculating The Most Popular Stations and Trip...\n')
     # Sleep timer to display statistics orderly and not all at once
@@ -210,15 +210,15 @@ def station_stats(df):
 
     try:
         # display most commonly used start station
-        popular_start = df['Start Station'].mode()[0]
+        popular_start = city_data_dataframe['Start Station'].mode()[0]
         print("Most popular Start Station was {}".format(popular_start))
 
         # display most commonly used end station
-        popular_end = df['End Station'].mode()[0]
+        popular_end = city_data_dataframe['End Station'].mode()[0]
         print("Most popular End Station was {}".format(popular_end))
 
         # display most frequent combination of start station and end station trip
-        routes = df['Start Station'] + " : " + df['End Station']
+        routes = city_data_dataframe['Start Station'] + " : " + city_data_dataframe['End Station']
         popular_route = routes.mode()[0]
         print("Most popular Route was {} to {}".format(*popular_route.split(':')))
 
@@ -231,7 +231,7 @@ def station_stats(df):
         print("Raised Error: ",e)
 
 
-def trip_duration_stats(df):
+def trip_duration_stats(city_data_dataframe):
     """Displays statistics on the total and average trip duration."""
 
     print('\nCalculating Trip Duration...\n')
@@ -241,10 +241,10 @@ def trip_duration_stats(df):
 
     try:
         # display total travel time
-        print("Total travel Time is {} hours".format(df['Trip Duration'].sum()/60))
+        print("Total travel Time is {} hours".format(city_data_dataframe['Trip Duration'].sum()/60))
 
         # display mean travel time
-        print("Average travel Time is {} hours".format(df['Trip Duration'].mean()/60))
+        print("Average travel Time is {} hours".format(city_data_dataframe['Trip Duration'].mean()/60))
 
         print("\nThis took %s seconds." % (time.time() - start_time))
         print('-'*40)
@@ -254,7 +254,7 @@ def trip_duration_stats(df):
     except Exception as e:
         print("Raised Error: ",e)
 
-def user_stats(df):
+def user_stats(city_data_dataframe):
     """Displays statistics on bikeshare users."""
 
     print('\nCalculating User Stats...\n')
@@ -265,14 +265,14 @@ def user_stats(df):
     try:
         # Display counts of user types
         print("\nUser Type Distribution")
-        print(df['User Type'].value_counts())
+        print(city_data_dataframe['User Type'].value_counts())
 
         # Display counts of gender
         print("\nGender Distribution")
-        print(df['Gender'].value_counts())
+        print(city_data_dataframe['Gender'].value_counts())
 
         # Display earliest, most recent, and most common year of birth
-        birth_year = [year for year in df['Birth Year'] if year > 0]
+        birth_year = [year for year in city_data_dataframe['Birth Year'] if year > 0]
         print("\nOldest Customer(s) year of birth is {}".format(min(birth_year)))
         print("Youngest Customers(s) year of birth is {}".format(max(birth_year)))
         print("Most Common Birth Year is {}".format(mode(birth_year)))
@@ -289,13 +289,13 @@ def user_stats(df):
 def main():
     while True:
         city, month, day = get_filters()
-        df = load_data(city, month, day)
-        df = preprocessing(df,city)
-        time_stats(df)
-        station_stats(df)
-        trip_duration_stats(df)
-        user_stats(df)
-        view_data(df)
+        city_data_dataframe = load_data(city, month, day)
+        city_data_dataframe = preprocessing(city_data_dataframe,city)
+        time_stats(city_data_dataframe)
+        station_stats(city_data_dataframe)
+        trip_duration_stats(city_data_dataframe)
+        user_stats(city_data_dataframe)
+        view_data(city_data_dataframe)
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
