@@ -9,9 +9,9 @@ CITY_DATA = { 'chicago': 'chicago.csv',
               'new york city': 'new_york_city.csv',
               'washington': 'washington.csv' }
 
-# lists for months and weekdays to select name based on position (index)
+# lists for months and week_days to select name based on position (index)
 months = ['all','january', 'february', 'march', 'april', 'may', 'june']
-weekdays =  ['all','monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+week_days =  ['all','monday','tuesday','wednesday','thursday','friday','saturday','sunday']
 
 def invalid_input_helper(options, option):
     """
@@ -68,7 +68,7 @@ def get_filters():
         if day_filter:
             # get user input for day of week (all, monday, tuesday, ... sunday)
             day = input("\nEnter the day of week (all, monday, tuesday, ... sunday): ").lower()
-            day = invalid_input_helper(weekdays, day)
+            day = invalid_input_helper(week_days, day)
         else:
             day = 'all'
         print('-'*70)
@@ -114,7 +114,7 @@ def load_data(city, month, day):
 
         # filter by day of week if applicable
         if day != 'all':
-            day = weekdays.index(day)
+            day = week_days.index(day)
             # filter by day of week to create the new dataframe
             city_data_dataframe = city_data_dataframe[city_data_dataframe['day_of_week'] == day-1]
 
@@ -188,7 +188,7 @@ def time_stats(city_data_dataframe):
 
         # display the most common day of week
         busiest_dow_index = city_data_dataframe['day_of_week'].mode()[0]
-        print("Busiest Day of Week was {}".format(weekdays[busiest_dow_index].title()))
+        print("Busiest Day of Week was {}".format(week_days[busiest_dow_index].title()))
 
         # display the most common start hour
         busiest_start_hour = city_data_dataframe['Start Time'].dt.hour.mode()[0]
